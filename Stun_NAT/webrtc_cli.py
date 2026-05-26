@@ -9,6 +9,7 @@ WS_URL = "ws://101.227.69.36:5991"
 # 配置 STUN 服务器
 rtc_config = RTCConfiguration(
     iceServers=[
+        RTCIceServer(urls=["stun:stun.l.google.com:19302"]),
         RTCIceServer(urls=["stun:stun.qq.com:3478"]),
         RTCIceServer(urls=["stun:stun.miwifi.com:3478"])
     ]
@@ -50,10 +51,15 @@ async def run(role):
 
         if role == "offer":
             # 1. 创建 Offer
-            print("发送打洞邀请 (Offer)...")
+            print("正在收集本地网络特征并生成 Offer...")
             offer = await pc.createOffer()
             await pc.setLocalDescription(offer)
             
+            # 等待 STUN 打洞收集公网 IP 完成
+            while pc.iceGatheringState != "complete":
+                await asyncio.sleep(0.1)
+                
+            print("发送打洞邀请 (Offer)...")
             await websocket.send(json.dumps({
                 "type": "offer",
                 "offer": {
@@ -74,8 +80,14 @@ async def run(role):
                     await pc.setRemoteDescription(offer)
                     
                     # 2. 回复 Answer
+                    print("正在收集本地网络特征并生成 Answer...")
                     answer = await pc.createAnswer()
                     await pc.setLocalDescription(answer)
+                    
+                    # 等待 STUN 打洞收集公网 IP 完成
+                    while pc.iceGatheringState != "complete":
+                        await asyncio.sleep(0.1)
+                        
                     print("发送打洞同意书 (Answer)...")
                     await websocket.send(json.dumps({
                         "type": "answer",
