@@ -1,0 +1,4 @@
+*.pcap
+*.json
+*.un~
+.DS_Store

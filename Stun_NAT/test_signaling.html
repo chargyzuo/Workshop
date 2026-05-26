@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>信令服务器测试工具</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; }
+        .panel { border: 1px solid #ccc; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .log-box { width: 100%; height: 200px; overflow-y: scroll; border: 1px solid #ddd; background: #f9f9f9; padding: 10px; font-family: monospace; font-size: 12px; margin-top: 10px; box-sizing: border-box; }
+        input[type="text"] { width: 70%; padding: 8px; margin-right: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        button { padding: 8px 15px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        .status { font-weight: bold; margin-bottom: 10px; }
+        .status.disconnected { color: red; }
+        .status.connected { color: green; }
+    </style>
+</head>
+<body>
+
+    <h2>WebSocket 信令服务器测试</h2>
+
+    <div class="panel">
+        <div id="connectionStatus" class="status disconnected">状态: 未连接</div>
+        <div>
+            <input type="text" id="wsUrl" value="ws://你的云服务器IP:8081" placeholder="ws://ip:port">
+            <button id="connectBtn" onclick="connect()">连接</button>
+            <button id="disconnectBtn" onclick="disconnect()" disabled>断开</button>
+        </div>
+    </div>
+
+    <div class="panel">
+        <div>
+            <input type="text" id="msgInput" placeholder='例如: {"type":"hello", "ip":"1.1.1.1"}' value='{"type": "greeting", "content": "hello world"}'>
+            <button id="sendBtn" onclick="sendMessage()" disabled>发送 JSON 消息</button>
+        </div>
+        <div id="logArea" class="log-box"></div>
+    </div>
+
+    <script>
+        let ws = null;
+        const logArea = document.getElementById('logArea');
+        const statusEl = document.getElementById('connectionStatus');
+        const connectBtn = document.getElementById('connectBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        const sendBtn = document.getElementById('sendBtn');
+
+        function log(message, isError = false) {
+            const time = new Date().toLocaleTimeString();
+            const color = isError ? 'red' : 'black';
+            logArea.innerHTML += `<div style="color: ${color}">[${time}] ${message}</div>`;
+            logArea.scrollTop = logArea.scrollHeight;
+        }
+
+        function connect() {
+            const url = document.getElementById('wsUrl').value;
+            if (!url) return alert("请输入 WebSocket URL");
+            
+            log(`尝试连接到: ${url}...`);
+            try {
+                ws = new WebSocket(url);
+            } catch (e) {
+                log(`连接创建失败: ${e.message}`, true);
+                return;
+            }
+
+            ws.onopen = () => {
+                log("✅ 连接成功！");
+                statusEl.innerText = "状态: 已连接";
+                statusEl.className = "status connected";
+                connectBtn.disabled = true;
+                disconnectBtn.disabled = false;
+                sendBtn.disabled = false;
+            };
+
+            ws.onmessage = (event) => {
+                log(`📥 收到广播消息: ${event.data}`);
+            };
+
+            ws.onclose = () => {
+                log("❌ 连接已断开。");
+                statusEl.innerText = "状态: 未连接";
+                statusEl.className = "status disconnected";
+                connectBtn.disabled = false;
+                disconnectBtn.disabled = true;
+                sendBtn.disabled = true;
+                ws = null;
+            };
+
+            ws.onerror = (error) => {
+                log(`⚠️ WebSocket 发生错误，请检查 IP/端口和防火墙放行情况。`, true);
+            };
+        }
+
+        function disconnect() {
+            if (ws) {
+                ws.close();
+            }
+        }
+
+        function sendMessage() {
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                return alert("尚未连接！");
+            }
+            const msgStr = document.getElementById('msgInput').value;
+            try {
+                // 校验是否是合法 JSON
+                JSON.parse(msgStr); 
+                ws.send(msgStr);
+                log(`📤 发送消息: ${msgStr}`);
+            } catch (e) {
+                alert("请输入合法的 JSON 格式数据！");
+            }
+        }
+    </script>
+</body>
+</html>

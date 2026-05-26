@@ -1,0 +1,554 @@
+
+------------------------------------------------------------------------------------------
+bytedance network device
+This is a private property facility to be accessed and used for bytedance internal systems.
+Unauthorized Access Prohibited!
+------------------------------------------------------------------------------------------
+
+
+Warning: Negotiated identity key for server authentication is not safe. It is recommended that you disable the insecure algorithm or upgrade the client.
+
+Info: The max number of VTY users is 15, the number of current VTY users online is 2, and total number of terminal users online is 2.
+      The current login time is 2026-05-15 17:15:30+08:00.
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis ip int b
+*down: administratively down
+!down: FIB overload down
+^down: standby
+(l): loopback
+(s): spoofing
+(d): Dampening Suppressed
+(ed): error down
+The number of interface that is UP in Physical is 19
+The number of interface that is DOWN in Physical is 10
+The number of interface that is UP in Protocol is 17
+The number of interface that is DOWN in Protocol is 12
+Interface                   IP Address/Mask    Physical Protocol VPN           
+100GE4/0/0                  10.90.216.10/30    up       up       --            
+100GE4/0/1                  10.90.216.65/30    up       up       --            
+100GE4/0/2                  unassigned         up       down     --            
+100GE4/0/2.3900             10.90.216.117/30   up       up       --            
+100GE4/0/2.3910             10.90.216.133/30   up       up       --            
+100GE4/0/2.3920             10.90.216.149/30   up       up       SGP           
+100GE4/0/2.3930             10.90.216.165/30   up       up       JP            
+100GE4/0/3                  unassigned         down     down     --            
+100GE4/0/3.3901             10.90.216.121/30   down     down     --            
+100GE4/0/3.3911             10.90.216.137/30   down     down     --            
+100GE4/0/3.3921             10.90.216.153/30   down     down     SGP           
+100GE4/0/3.3931             10.90.216.169/30   down     down     JP            
+100GE4/0/4                  unassigned         down     down     --            
+100GE4/0/4.3940             10.90.216.73/30    down     down     --            
+100GE4/0/4.3950             10.90.216.97/30    down     down     SGP           
+100GE4/0/4.3960             10.90.216.85/30    down     down     JP            
+100GE4/0/5                  10.90.216.181/30   up       up       --            
+100GE4/0/6                  unassigned         down     down     --            
+25GE1/0/0                   10.90.216.189/30   up       up       --            
+25GE1/0/39                  192.168.0.1/30     up       up       KPL           
+Eth-Trunk201                unassigned         up       down     --            
+Eth-Trunk201.3942           10.90.216.61/30    up       up       --            
+Eth-Trunk201.3952           10.90.216.93/30    up       up       SGP           
+Eth-Trunk201.3962           10.90.216.81/30    up       up       JP            
+LoopBack0                   10.77.1.20/32      up       up(s)    --            
+LoopBack1                   10.77.1.26/32      up       up(s)    SGP           
+LoopBack2                   10.77.1.30/32      up       up(s)    JP            
+MEth0/0/0                   10.77.0.125/25     up       up       mgmt          
+NULL0                       unassigned         up       up(s)    --            
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis cur int 100GE4/0/0 
+#
+interface 100GE4/0/0
+ undo portswitch
+ description To_CNSHA46-POP-F02-E-CE6865E-INTG-CSW01_100GE4/0/3
+ ipv6 enable
+ ip address 10.90.216.10 255.255.255.252
+ ipv6 address FDBD:FF1:CE00:6480::2E/125
+ ospfv3 10 area 0.0.0.0
+ ospfv3 network-type p2p
+ ospfv3 bfd min-transmit-interval 750 min-receive-interval 750
+ ospf network-type p2p
+ ospf bfd min-tx-interval 750 min-rx-interval 750
+ ospf enable 10 area 0.0.0.0
+ device transceiver 100GBASE-FIBER
+#
+return
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis ip routing
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis ip routing-table 10.90.216.9 
+Proto: Protocol        Pre: Preference
+Route Flags: R - relay, D - download to fib, T - to vpn-instance, B - black hole route
+------------------------------------------------------------------------------
+Routing Table : _public_
+Summary Count : 1
+
+Destination/Mask    Proto   Pre  Cost        Flags NextHop                                  Interface
+
+    10.90.216.8/30  Direct  0    0             D   10.90.216.10                             100GE4/0/0
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis arp int 100GE4/0/0
+ARP timeout:1200s
+ARP Entry Types: D - Dynamic, S - Static, I - Interface, O - OpenFlow, RD - Redirect
+EXP: Expire-time VLAN: VLAN or Bridge Domain
+
+IP ADDRESS      MAC ADDRESS    EXP(M) TYPE/VLAN       INTERFACE        VPN-INSTANCE
+----------------------------------------------------------------------------------------
+10.90.216.10    40b1-5c31-5602        I               100GE4/0/0       
+10.90.216.9     e0da-907f-dcd2   18   D               100GE4/0/0       
+----------------------------------------------------------------------------------------
+Total:2         Dynamic:1       Static:0    Interface:1    OpenFlow:0
+Redirect:0
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis ip routing
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis ip routing-table 100.83.68.129
+Proto: Protocol        Pre: Preference
+Route Flags: R - relay, D - download to fib, T - to vpn-instance, B - black hole route
+------------------------------------------------------------------------------
+Routing Table : _public_
+Summary Count : 1
+
+Destination/Mask    Proto   Pre  Cost        Flags NextHop                                  Interface
+
+    100.83.68.0/22  EBGP    255  0             RD  10.90.216.118                            100GE4/0/2.3900
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis cur int 100GE4/0/2.3900
+#
+interface 100GE4/0/2.3900
+ description to_WAN
+ ipv6 enable
+ ip address 10.90.216.117 255.255.255.252
+ ipv6 address FDBD:FF1:CE00:6480::171/125
+ encapsulation dot1q-termination
+ dot1q termination vid 3900
+#
+return
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis ip routing-table 100.83.68.129
+Proto: Protocol        Pre: Preference
+Route Flags: R - relay, D - download to fib, T - to vpn-instance, B - black hole route
+------------------------------------------------------------------------------
+Routing Table : _public_
+Summary Count : 1
+
+Destination/Mask    Proto   Pre  Cost        Flags NextHop                                  Interface
+
+    100.83.68.0/22  EBGP    255  0             RD  10.90.216.118                            100GE4/0/2.3900
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis ip routing-table 100.83.68.129
+Proto: Protocol        Pre: Preference
+Route Flags: R - relay, D - download to fib, T - to vpn-instance, B - black hole route
+------------------------------------------------------------------------------
+Routing Table : _public_
+Summary Count : 1
+
+Destination/Mask    Proto   Pre  Cost        Flags NextHop                                  Interface
+
+    100.83.68.0/22  EBGP    255  0             RD  10.90.216.118                            100GE4/0/2.3900
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis bgp rout
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis bgp router-id
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis bgp routing-table ?
+  X.X.X.X                 Specify an IPv4 network address
+  as-path-filter          Routes matching certain AS_PATH filter list
+  cidr                    Classless inter-domain route
+  community               Routes matched with communities
+  community-filter        Routes matching community-filter
+  dampened                BGP-dampened routes
+  dampening               BGP-dampening status
+  different-origin-as     Routes with the same destination address&mask but
+                          originating from different origin ASs
+  flap-info               Display BGP flap information
+  large-community         Routes matched with large communities
+  large-community-filter  Routes matching large-community-filter
+  peer                    Peer routers
+  regular-expression      Route matches regular-expression
+  statistics              Statistics of route
+  time-range              Specify time-range configuration information
+  unnumbered              Unnumbered
+  verbose                 Verbose information
+  |                       Matching output
+  >                       Redirect the output to a file
+  >>                      Redirect the output to a file in append mode
+  <cr>                    
+
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis bgp routing-table 100GE4/0/2.3900
+                                                            ^
+Error: Wrong parameter found at '^' position.
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis bgp routing-table                
+ BGP Local router ID is 10.77.1.20
+ Status codes: * - valid, > - best, d - damped, a - add path,
+               h - history,  i - internal, s - suppressed, S - Stale
+ Origin      : i - IGP, e - EGP, ? - incomplete
+
+ Total Number of Routes: 5334
+        Network            NextHop                       MED        LocPrf    PrefVal Path/Ogn
+ *>i    0.0.0.0/0          10.77.1.34                     0          100        0       i
+ * i                       10.77.1.35                     0          100        0       i
+ * i                       10.77.1.35                     0          100        0       i
+ *>     10.0.0.0/8         10.90.216.118                                        0      65221 65450 64527 65509i
+ * i                       10.77.1.21                                100        0      65221 65450 64527 65509i
+ *>     10.0.0.0/21        10.90.216.118                                        0      65221 65201i
+ * i                       10.77.1.21                                100        0      65221 65201i
+ *>     10.0.14.0/23       10.90.216.118                                        0      65221 65220?
+ * i                       10.77.1.21                                100        0      65221 65220?
+ *>     10.0.14.44/30      10.90.216.118                                        0      65221 65220?
+ * i                       10.77.1.21                                100        0      65221 65220?
+ *>     10.0.14.52/30      10.90.216.118                                        0      65221 65220?
+ * i                       10.77.1.21                                100        0      65221 65220?
+ *>     10.0.14.72/30      10.90.216.118                                        0      65221 65220?
+ * i                       10.77.1.21                                100        0      65221 65220?
+ *>     10.0.14.80/30      10.90.216.118                                        0      65221 65220?
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis bgp routing-table 100.83.68.129
+ 
+ BGP local router ID : 10.77.1.20
+ Local AS number : 65403
+ Paths:   2 available, 1 best, 1 select, 0 best-external, 0 add-path
+ BGP routing table entry information of 100.83.68.0/22:
+ From: 10.90.216.118 (10.3.244.3)
+ Route Duration: 0d00h06m00s
+ Direct Out-interface: 100GE4/0/2.3900
+ Original nexthop: 10.90.216.118
+ Qos information : 0x0
+ Community: <65221:1000>, <65251:1000>, <65251:2102>, <65300:1003>, <65300:2003>, <65300:3222>
+ AS-path 65221 65271, origin incomplete, pref-val 0, valid, external, best, select, pre 255
+ Advertised to such 9 peers:
+    10.90.216.118
+    10.90.216.134
+    10.77.1.36
+    10.77.1.34
+    10.77.1.37
+    10.77.1.38
+    10.77.1.35
+    10.77.1.21
+    10.90.216.182
+
+ BGP routing table entry information of 100.83.68.0/22:
+ From: 10.77.1.21 (10.77.1.21)
+ Route Duration: 0d00h06m03s
+ Relay IP Nexthop: 10.90.216.62
+ Relay IP Out-Interface: Eth-Trunk201.3942
+ Original nexthop: 10.77.1.21
+ Qos information : 0x0
+ AS-path 65221 65271, origin incomplete, localpref 100, pref-val 0, valid, internal, pre 255, IGP cost 1, not preferred for peer type
+ Not advertised to any peer yet
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis ip int b
+*down: administratively down
+!down: FIB overload down
+^down: standby
+(l): loopback
+(s): spoofing
+(d): Dampening Suppressed
+(ed): error down
+The number of interface that is UP in Physical is 19
+The number of interface that is DOWN in Physical is 10
+The number of interface that is UP in Protocol is 17
+The number of interface that is DOWN in Protocol is 12
+Interface                   IP Address/Mask    Physical Protocol VPN           
+100GE4/0/0                  10.90.216.10/30    up       up       --            
+100GE4/0/1                  10.90.216.65/30    up       up       --            
+100GE4/0/2                  unassigned         up       down     --            
+100GE4/0/2.3900             10.90.216.117/30   up       up       --            
+100GE4/0/2.3910             10.90.216.133/30   up       up       --            
+100GE4/0/2.3920             10.90.216.149/30   up       up       SGP           
+100GE4/0/2.3930             10.90.216.165/30   up       up       JP            
+100GE4/0/3                  unassigned         down     down     --            
+100GE4/0/3.3901             10.90.216.121/30   down     down     --            
+100GE4/0/3.3911             10.90.216.137/30   down     down     --            
+100GE4/0/3.3921             10.90.216.153/30   down     down     SGP           
+100GE4/0/3.3931             10.90.216.169/30   down     down     JP            
+100GE4/0/4                  unassigned         down     down     --            
+100GE4/0/4.3940             10.90.216.73/30    down     down     --            
+100GE4/0/4.3950             10.90.216.97/30    down     down     SGP           
+100GE4/0/4.3960             10.90.216.85/30    down     down     JP            
+100GE4/0/5                  10.90.216.181/30   up       up       --            
+100GE4/0/6                  unassigned         down     down     --            
+25GE1/0/0                   10.90.216.189/30   up       up       --            
+25GE1/0/39                  192.168.0.1/30     up       up       KPL           
+Eth-Trunk201                unassigned         up       down     --            
+Eth-Trunk201.3942           10.90.216.61/30    up       up       --            
+Eth-Trunk201.3952           10.90.216.93/30    up       up       SGP           
+Eth-Trunk201.3962           10.90.216.81/30    up       up       JP            
+LoopBack0                   10.77.1.20/32      up       up(s)    --            
+LoopBack1                   10.77.1.26/32      up       up(s)    SGP           
+LoopBack2                   10.77.1.30/32      up       up(s)    JP            
+MEth0/0/0                   10.77.0.125/25     up       up       mgmt          
+NULL0                       unassigned         up       up(s)    --            
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis bgp routing-table 100.83.68.129
+ 
+ BGP local router ID : 10.77.1.20
+ Local AS number : 65403
+ Paths:   2 available, 1 best, 1 select, 0 best-external, 0 add-path
+ BGP routing table entry information of 100.83.68.0/22:
+ From: 10.90.216.118 (10.3.244.3)
+ Route Duration: 0d00h07m15s
+ Direct Out-interface: 100GE4/0/2.3900
+ Original nexthop: 10.90.216.118
+ Qos information : 0x0
+ Community: <65221:1000>, <65251:1000>, <65251:2102>, <65300:1003>, <65300:2003>, <65300:3222>
+ AS-path 65221 65271, origin incomplete, pref-val 0, valid, external, best, select, pre 255
+ Advertised to such 9 peers:
+    10.90.216.118
+    10.90.216.134
+    10.77.1.36
+    10.77.1.34
+    10.77.1.37
+    10.77.1.38
+    10.77.1.35
+    10.77.1.21
+    10.90.216.182
+
+ BGP routing table entry information of 100.83.68.0/22:
+ From: 10.77.1.21 (10.77.1.21)
+ Route Duration: 0d00h07m18s
+ Relay IP Nexthop: 10.90.216.62
+ Relay IP Out-Interface: Eth-Trunk201.3942
+ Original nexthop: 10.77.1.21
+ Qos information : 0x0
+ AS-path 65221 65271, origin incomplete, localpref 100, pref-val 0, valid, internal, pre 255, IGP cost 1, not preferred for peer type
+ Not advertised to any peer yet
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis ip routing-table 100.83.68.129   
+Proto: Protocol        Pre: Preference
+Route Flags: R - relay, D - download to fib, T - to vpn-instance, B - black hole route
+------------------------------------------------------------------------------
+Routing Table : _public_
+Summary Count : 1
+
+Destination/Mask    Proto   Pre  Cost        Flags NextHop                                  Interface
+
+    100.83.68.0/22  EBGP    255  0             RD  10.90.216.118                            100GE4/0/2.3900
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis ip routing-table 100.83.68.129
+Proto: Protocol        Pre: Preference
+Route Flags: R - relay, D - download to fib, T - to vpn-instance, B - black hole route
+------------------------------------------------------------------------------
+Routing Table : _public_
+Summary Count : 1
+
+Destination/Mask    Proto   Pre  Cost        Flags NextHop                                  Interface
+
+    100.83.68.0/22  EBGP    255  0             RD  10.90.216.118                            100GE4/0/2.3900
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis ip routing-table 100.83.68.129
+Proto: Protocol        Pre: Preference
+Route Flags: R - relay, D - download to fib, T - to vpn-instance, B - black hole route
+------------------------------------------------------------------------------
+Routing Table : _public_
+Summary Count : 1
+
+Destination/Mask    Proto   Pre  Cost        Flags NextHop                                  Interface
+
+    100.83.68.0/22  EBGP    255  0             RD  10.90.216.118                            100GE4/0/2.3900
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis ip routing-table 100.83.68.129
+Proto: Protocol        Pre: Preference
+Route Flags: R - relay, D - download to fib, T - to vpn-instance, B - black hole route
+------------------------------------------------------------------------------
+Routing Table : _public_
+Summary Count : 1
+
+Destination/Mask    Proto   Pre  Cost        Flags NextHop                                  Interface
+
+    100.83.68.0/22  EBGP    255  0             RD  10.90.216.118                            100GE4/0/2.3900
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis ip routing-table 100.83.68.129
+Proto: Protocol        Pre: Preference
+Route Flags: R - relay, D - download to fib, T - to vpn-instance, B - black hole route
+------------------------------------------------------------------------------
+Routing Table : _public_
+Summary Count : 1
+
+Destination/Mask    Proto   Pre  Cost        Flags NextHop                                  Interface
+
+    100.83.68.0/22  EBGP    255  0             RD  10.90.216.118                            100GE4/0/2.3900
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis ip routing-table 100.83.68.129
+Proto: Protocol        Pre: Preference
+Route Flags: R - relay, D - download to fib, T - to vpn-instance, B - black hole route
+------------------------------------------------------------------------------
+Routing Table : _public_
+Summary Count : 1
+
+Destination/Mask    Proto   Pre  Cost        Flags NextHop                                  Interface
+
+    100.83.68.0/22  EBGP    255  0             RD  10.90.216.118                            100GE4/0/2.3900
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis ip routing-table 100.83.68.129
+Proto: Protocol        Pre: Preference
+Route Flags: R - relay, D - download to fib, T - to vpn-instance, B - black hole route
+------------------------------------------------------------------------------
+Routing Table : _public_
+Summary Count : 1
+
+Destination/Mask    Proto   Pre  Cost        Flags NextHop                                  Interface
+
+    100.83.68.0/22  EBGP    255  0             RD  10.90.216.118                            100GE4/0/2.3900
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis ip routing-table 100.83.68.129
+Proto: Protocol        Pre: Preference
+Route Flags: R - relay, D - download to fib, T - to vpn-instance, B - black hole route
+------------------------------------------------------------------------------
+Routing Table : _public_
+Summary Count : 1
+
+Destination/Mask    Proto   Pre  Cost        Flags NextHop                                  Interface
+
+    100.83.68.0/22  EBGP    255  0             RD  10.90.216.118                            100GE4/0/2.3900
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis ip routing-table 100.83.68.129
+Proto: Protocol        Pre: Preference
+Route Flags: R - relay, D - download to fib, T - to vpn-instance, B - black hole route
+------------------------------------------------------------------------------
+Routing Table : _public_
+Summary Count : 1
+
+Destination/Mask    Proto   Pre  Cost        Flags NextHop                                  Interface
+
+    100.83.68.0/22  EBGP    255  0             RD  10.90.216.118                            100GE4/0/2.3900
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis ip routing-table 100.83.68.129
+Proto: Protocol        Pre: Preference
+Route Flags: R - relay, D - download to fib, T - to vpn-instance, B - black hole route
+------------------------------------------------------------------------------
+Routing Table : _public_
+Summary Count : 1
+
+Destination/Mask    Proto   Pre  Cost        Flags NextHop                                  Interface
+
+    100.83.68.0/22  EBGP    255  0             RD  10.90.216.118                            100GE4/0/2.3900
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis ip routing-table 100.83.68.129
+Proto: Protocol        Pre: Preference
+Route Flags: R - relay, D - download to fib, T - to vpn-instance, B - black hole route
+------------------------------------------------------------------------------
+Routing Table : _public_
+Summary Count : 1
+
+Destination/Mask    Proto   Pre  Cost        Flags NextHop                                  Interface
+
+    100.83.68.0/22  EBGP    255  0             RD  10.90.216.118                            100GE4/0/2.3900
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis ip routing-table 100.83.68.129
+Proto: Protocol        Pre: Preference
+Route Flags: R - relay, D - download to fib, T - to vpn-instance, B - black hole route
+------------------------------------------------------------------------------
+Routing Table : _public_
+Summary Count : 1
+
+Destination/Mask    Proto   Pre  Cost        Flags NextHop                                  Interface
+
+    100.83.68.0/22  EBGP    255  0             RD  10.90.216.118                            100GE4/0/2.3900
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis ip routing-table 100.83.68.129
+Proto: Protocol        Pre: Preference
+Route Flags: R - relay, D - download to fib, T - to vpn-instance, B - black hole route
+------------------------------------------------------------------------------
+Routing Table : _public_
+Summary Count : 1
+
+Destination/Mask    Proto   Pre  Cost        Flags NextHop                                  Interface
+
+    100.83.68.0/22  EBGP    255  0             RD  10.90.216.118                            100GE4/0/2.3900
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>ping 100.83.68.129
+  PING 100.83.68.129: 56  data bytes, press CTRL_C to break
+    Request time out
+    Request time out
+    Request time out
+    Request time out
+
+  --- 100.83.68.129 ping statistics ---
+    4 packet(s) transmitted
+    0 packet(s) received
+    100.00% packet loss
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis ip routing-table 100.83.68.129
+Proto: Protocol        Pre: Preference
+Route Flags: R - relay, D - download to fib, T - to vpn-instance, B - black hole route
+------------------------------------------------------------------------------
+Routing Table : _public_
+Summary Count : 1
+
+Destination/Mask    Proto   Pre  Cost        Flags NextHop                                  Interface
+
+    100.83.68.0/22  EBGP    255  0             RD  10.90.216.118                            100GE4/0/2.3900
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis ip routing-table 100.83.68.129
+Proto: Protocol        Pre: Preference
+Route Flags: R - relay, D - download to fib, T - to vpn-instance, B - black hole route
+------------------------------------------------------------------------------
+Routing Table : _public_
+Summary Count : 1
+
+Destination/Mask    Proto   Pre  Cost        Flags NextHop                                  Interface
+
+    100.83.68.0/22  EBGP    255  0             RD  10.90.216.118                            100GE4/0/2.3900
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis bgp routing-table 100.83.68.129
+ 
+ BGP local router ID : 10.77.1.20
+ Local AS number : 65403
+ Paths:   2 available, 1 best, 1 select, 0 best-external, 0 add-path
+ BGP routing table entry information of 100.83.68.0/22:
+ From: 10.90.216.118 (10.3.244.3)
+ Route Duration: 0d00h09m29s
+ Direct Out-interface: 100GE4/0/2.3900
+ Original nexthop: 10.90.216.118
+ Qos information : 0x0
+ Community: <65221:1000>, <65251:1000>, <65251:2102>, <65300:1003>, <65300:2003>, <65300:3222>
+ AS-path 65221 65271, origin incomplete, pref-val 0, valid, external, best, select, pre 255
+ Advertised to such 9 peers:
+    10.90.216.118
+    10.90.216.134
+    10.77.1.36
+    10.77.1.34
+    10.77.1.37
+    10.77.1.38
+    10.77.1.35
+    10.77.1.21
+    10.90.216.182
+
+ BGP routing table entry information of 100.83.68.0/22:
+ From: 10.77.1.21 (10.77.1.21)
+ Route Duration: 0d00h09m32s
+ Relay IP Nexthop: 10.90.216.62
+ Relay IP Out-Interface: Eth-Trunk201.3942
+ Original nexthop: 10.77.1.21
+ Qos information : 0x0
+ AS-path 65221 65271, origin incomplete, localpref 100, pref-val 0, valid, internal, pre 255, IGP cost 1, not preferred for peer type
+ Not advertised to any peer yet
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis bgp routing-table 100.83.68.129
+Info: The network does not exist.
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis bgp routing-table 100.83.68.129
+Info: The network does not exist.
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis bgp routing-table 100.83.68.129
+Info: The network does not exist.
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis bgp routing-table 100.83.68.129
+Info: The network does not exist.
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis bgp routing-table 100.83.68.129
+Info: The network does not exist.
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis bgp routing-table 100.83.68.129
+Info: The network does not exist.
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis bgp routing-table 100.83.68.129
+Info: The network does not exist.
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis bgp routing-table 100.83.68.129
+Info: The network does not exist.
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis bgp routing-table 100.83.68.129
+Info: The network does not exist.
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis bgp routing-table 100.83.68.129
+Info: The network does not exist.
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis bgp routing-table 100.83.68.129
+Info: The network does not exist.
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis bgp routing-table 100.83.68.129
+ 
+ BGP local router ID : 10.77.1.20
+ Local AS number : 65403
+ Paths:   2 available, 1 best, 1 select, 0 best-external, 0 add-path
+ BGP routing table entry information of 100.83.68.0/22:
+ From: 10.90.216.118 (10.3.244.3)
+ Route Duration: 0d00h00m03s
+ Direct Out-interface: 100GE4/0/2.3900
+ Original nexthop: 10.90.216.118
+ Qos information : 0x0
+ Community: <65221:1000>, <65251:1000>, <65251:2102>, <65300:1003>, <65300:2003>, <65300:3222>
+ AS-path 65221 65271, origin incomplete, pref-val 0, valid, external, best, select, pre 255
+ Advertised to such 9 peers:
+    10.90.216.118
+    10.90.216.134
+    10.77.1.36
+    10.77.1.34
+    10.77.1.37
+    10.77.1.38
+    10.77.1.35
+    10.77.1.21
+    10.90.216.182
+
+ BGP routing table entry information of 100.83.68.0/22:
+ From: 10.77.1.21 (10.77.1.21)
+ Route Duration: 0d00h00m05s
+ Relay IP Nexthop: 10.90.216.62
+ Relay IP Out-Interface: Eth-Trunk201.3942
+ Original nexthop: 10.77.1.21
+ Qos information : 0x0
+ AS-path 65221 65271, origin incomplete, localpref 100, pref-val 0, valid, internal, pre 255, IGP cost 1, not preferred for peer type
+ Not advertised to any peer yet
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>dis clock
+2026-05-15 17:27:48+08:00
+Friday
+Time Zone(CST) : UTC+08:00
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>
+<CNSHA46-POP-F02-E-CE16800-CORE-CSW01>    

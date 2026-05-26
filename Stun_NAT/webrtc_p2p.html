@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebRTC P2P 打洞演示 (STUN)</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
+        .panel { border: 1px solid #ccc; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .log-box { width: 100%; height: 250px; overflow-y: scroll; border: 1px solid #ddd; background: #f9f9f9; padding: 10px; font-family: monospace; font-size: 12px; margin-top: 10px; box-sizing: border-box; }
+        input[type="text"] { padding: 8px; width: 60%; margin-right: 10px; }
+        button { padding: 8px 15px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 5px; }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        .highlight { color: #d63384; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h2>WebRTC 打洞与直连测试</h2>
+    
+    <div class="panel">
+        <h3>1. 连接信令服务器</h3>
+        <input type="text" id="wsUrl" value="ws://101.227.69.36:5991" placeholder="信令服务器地址">
+        <button id="connectBtn" onclick="connectSignaling()">连接信令</button>
+        <span id="wsStatus">🔴 未连接</span>
+    </div>
+
+    <div class="panel">
+        <h3>2. P2P 操作 (数据通道)</h3>
+        <!-- 发起方 -->
+        <button id="createOfferBtn" onclick="createOffer()" disabled>1. 发起打洞 (Create Offer)</button>
+        <br><br>
+        <!-- P2P 通信测试 -->
+        <input type="text" id="p2pMsgInput" placeholder="输入你想给对方发送的消息" disabled>
+        <button id="sendP2pBtn" onclick="sendP2pMessage()" disabled>🚀 发送 P2P 消息 (不经过服务器)</button>
+    </div>
+
+    <div class="panel">
+        <h3>运行日志</h3>
+        <div id="logArea" class="log-box"></div>
+    </div>
+
+    <script>
+        const wsUrlInput = document.getElementById('wsUrl');
+        const connectBtn = document.getElementById('connectBtn');
+        const wsStatus = document.getElementById('wsStatus');
+        const createOfferBtn = document.getElementById('createOfferBtn');
+        const p2pMsgInput = document.getElementById('p2pMsgInput');
+        const sendP2pBtn = document.getElementById('sendP2pBtn');
+        const logArea = document.getElementById('logArea');
+
+        let ws = null;
+        let peerConnection = null;
+        let dataChannel = null;
+
+        // 【核心配置】指定 STUN 服务器
+        const rtcConfig = {
+            iceServers: [
+                { urls: 'stun:stun.qq.com:3478' },
+                { urls: 'stun:stun.miwifi.com:3478' }
+            ]
+        };
+
+        function log(msg, isHighlight = false) {
+            const time = new Date().toLocaleTimeString();
+            const cls = isHighlight ? 'highlight' : '';
+            logArea.innerHTML += `<div class="${cls}">[${time}] ${msg}</div>`;
+            logArea.scrollTop = logArea.scrollHeight;
+        }
+
+        // --- 信令阶段 ---
+        function connectSignaling() {
+            log(`正在连接信令服务器 ${wsUrlInput.value}...`);
+            ws = new WebSocket(wsUrlInput.value);
+
+            ws.onopen = () => {
+                wsStatus.innerHTML = '🟢 已连接';
+                createOfferBtn.disabled = false;
+                log('✅ 信令服务器连接成功，你可以点击 [发起打洞] 了。', true);
+            };
+
+            ws.onmessage = async (event) => {
+                const message = JSON.parse(event.data);
+                log(`📥 收到信令: ${message.type}`);
+                
+                if (message.type === 'offer') {
+                    await handleOffer(message.offer);
+                } else if (message.type === 'answer') {
+                    await handleAnswer(message.answer);
+                } else if (message.type === 'ice-candidate') {
+                    await handleNewICECandidateMsg(message.candidate);
+                }
+            };
+
+            ws.onclose = () => {
+                wsStatus.innerHTML = '🔴 断开连接';
+                log('❌ 信令服务器连接已断开');
+            };
+        }
+
+        // 发送信令辅助函数
+        function sendSignaling(data) {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify(data));
+            }
+        }
+
+        // --- WebRTC 核心打洞阶段 ---
+
+        // 初始化 RTCPeerConnection
+        function initPeerConnection() {
+            peerConnection = new RTCPeerConnection(rtcConfig);
+
+            // 当本地收集到 ICE 候选者（包含公网 IP 和端口）时触发
+            peerConnection.onicecandidate = (event) => {
+                if (event.candidate) {
+                    log(`🔍 收集到本地网络特征: IP ${event.candidate.address}, 端口 ${event.candidate.port} (协议: ${event.candidate.protocol})`);
+                    // 通过信令服务器将自己的候选者发给对方
+                    sendSignaling({ type: 'ice-candidate', candidate: event.candidate });
+                } else {
+                    log('🏁 所有候选者收集完毕 (打洞特征准备就绪)。');
+                }
+            };
+
+            // 当底层的 P2P 连接状态改变时触发
+            peerConnection.oniceconnectionstatechange = () => {
+                log(`🔄 P2P 打洞状态变化: ${peerConnection.iceConnectionState}`, true);
+                if (peerConnection.iceConnectionState === 'connected') {
+                    log('🎉🎊 P2P 直连打洞成功！！数据不再经过服务器！', true);
+                    p2pMsgInput.disabled = false;
+                    sendP2pBtn.disabled = false;
+                }
+            };
+
+            // 【接收方】监听对方创建的数据通道
+            peerConnection.ondatachannel = (event) => {
+                dataChannel = event.channel;
+                setupDataChannel();
+            };
+        }
+
+        // 设置数据通道的事件监听
+        function setupDataChannel() {
+            dataChannel.onopen = () => log('🔗 P2P 数据通道已开启！');
+            dataChannel.onclose = () => log('🔗 P2P 数据通道已关闭。');
+            dataChannel.onmessage = (event) => log(`[P2P 消息] 收到对方数据: ${event.data}`, true);
+        }
+
+        // 【发起方】动作 1: 创建 Offer 并开始打洞
+        async function createOffer() {
+            log('正在初始化 P2P 连接，创建数据通道...');
+            initPeerConnection();
+            
+            // 发起方必须主动创建一个数据通道
+            dataChannel = peerConnection.createDataChannel('chat');
+            setupDataChannel();
+
+            // 创建 SDP 描述（我支持什么协议）
+            const offer = await peerConnection.createOffer();
+            await peerConnection.setLocalDescription(offer);
+            
+            log('发送打洞邀请 (Offer) 给信令服务器...');
+            sendSignaling({ type: 'offer', offer: offer });
+        }
+
+        // 【接收方】动作 2: 收到 Offer，生成 Answer 回复
+        async function handleOffer(offer) {
+            log('收到打洞邀请，准备接收...');
+            if (!peerConnection) initPeerConnection();
+            
+            await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+            
+            const answer = await peerConnection.createAnswer();
+            await peerConnection.setLocalDescription(answer);
+            
+            log('发送打洞同意书 (Answer) 给信令服务器...');
+            sendSignaling({ type: 'answer', answer: answer });
+        }
+
+        // 【发起方】动作 3: 收到 Answer
+        async function handleAnswer(answer) {
+            log('收到对方打洞同意书，确立连接...');
+            await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+        }
+
+        // 【双方】动作 4: 交换候选者 (互抛公网IP端口)
+        async function handleNewICECandidateMsg(candidate) {
+            log(`收到对方网络特征 (ICE)，尝试往对方的 IP:端口 强行发包打洞...`);
+            try {
+                await peerConnection.addIceCandidate(candidate);
+            } catch (e) {
+                log(`添加 ICE 失败: ${e.message}`);
+            }
+        }
+
+        // --- P2P 通信阶段 ---
+        function sendP2pMessage() {
+            const msg = p2pMsgInput.value;
+            if (dataChannel && dataChannel.readyState === 'open') {
+                dataChannel.send(msg);
+                log(`[P2P 消息] 我发送了: ${msg}`);
+                p2pMsgInput.value = '';
+            } else {
+                alert('P2P 连接未建立或通道未开启');
+            }
+        }
+    </script>
+</body>
+</html>
