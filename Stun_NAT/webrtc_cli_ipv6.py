@@ -52,6 +52,7 @@ async def run(role):
                 await asyncio.sleep(0.1)
                 
             print("发送直连邀请 (Offer)...")
+            print(f"DEBUG Offer SDP:\n{pc.localDescription.sdp}")
             await websocket.send(json.dumps({
                 "type": "offer",
                 "offer": {
@@ -85,6 +86,7 @@ async def run(role):
                     
                 elif msg["type"] == "answer" and role == "offer":
                     print("收到对方直连同意书，确立连接...")
+                    print(f"DEBUG Received Answer SDP:\n{msg['answer']['sdp']}")
                     answer = RTCSessionDescription(sdp=msg["answer"]["sdp"], type=msg["answer"]["type"])
                     await pc.setRemoteDescription(answer)
                     
