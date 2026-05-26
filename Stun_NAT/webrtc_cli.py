@@ -91,10 +91,20 @@ async def run(role):
                     await pc.setRemoteDescription(answer)
                     
                 elif msg["type"] == "ice-candidate":
-                    # aiortc 目前在 python 中对通过 addIceCandidate 动态添加的支持有限，
-                    # 并且经常由于和底层的 libwebrtc 差异导致问题。
-                    # 大多数情况下，aiortc 通过 SDP 交换就能处理好 STUN 打洞。
-                    print("收到对方的 ICE Candidate (依赖 SDP 自动打洞)")
+                    # 解析浏览器发来的动态 ICE Candidate
+                    from aiortc.sdp import candidate_from_sdp
+                    
+                    candidate_info = msg["candidate"]
+                    # 将字典转换为 aiortc 能识别的格式字符串
+                    sdp_str = candidate_info.get("candidate", "")
+                    if sdp_str:
+                        # 解析出完整的 candidate 对象
+                        remote_candidate = candidate_from_sdp(sdp_str)
+                        remote_candidate.sdpMid = candidate_info.get("sdpMid")
+                        remote_candidate.sdpMLineIndex = candidate_info.get("sdpMLineIndex")
+                        
+                        await pc.addIceCandidate(remote_candidate)
+                        print(f"🕳️ 已添加来自浏览器的特征 (打洞尝试): {remote_candidate.ip}:{remote_candidate.port}")
             except json.JSONDecodeError:
                 pass
 
