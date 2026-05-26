@@ -18,6 +18,14 @@ rtc_config = RTCConfiguration(
 async def run(role):
     pc = RTCPeerConnection(configuration=rtc_config)
     
+    @pc.on("iceconnectionstatechange")
+    async def on_iceconnectionstatechange():
+        print(f"🔄 内部 ICE 状态变化: {pc.iceConnectionState}")
+
+    @pc.on("connectionstatechange")
+    async def on_connectionstatechange():
+        print(f"🔄 内部连接状态变化: {pc.connectionState}")
+    
     # --- P2P 通信配置 ---
     if role == "offer":
         # 如果是发起方，必须主动创建数据通道
@@ -88,6 +96,7 @@ async def run(role):
                     while pc.iceGatheringState != "complete":
                         await asyncio.sleep(0.1)
                         
+                    print(f"✅ 网络特征收集完毕。是否包含公网特征？ {'srflx' in pc.localDescription.sdp}")
                     print("发送打洞同意书 (Answer)...")
                     await websocket.send(json.dumps({
                         "type": "answer",
@@ -107,16 +116,18 @@ async def run(role):
                     from aiortc.sdp import candidate_from_sdp
                     
                     candidate_info = msg["candidate"]
-                    # 将字典转换为 aiortc 能识别的格式字符串
                     sdp_str = candidate_info.get("candidate", "")
                     if sdp_str:
-                        # 解析出完整的 candidate 对象
-                        remote_candidate = candidate_from_sdp(sdp_str)
-                        remote_candidate.sdpMid = candidate_info.get("sdpMid")
-                        remote_candidate.sdpMLineIndex = candidate_info.get("sdpMLineIndex")
-                        
-                        await pc.addIceCandidate(remote_candidate)
-                        print(f"🕳️ 已添加来自浏览器的特征 (打洞尝试): {remote_candidate.ip}:{remote_candidate.port}")
+                        # 过滤掉苹果的 mDNS (.local) 地址，因为 Linux 解析不了它们会导致连接阻塞
+                        if ".local" in sdp_str:
+                            print(f"⚠️ 忽略无法解析的 mDNS 特征: {sdp_str}")
+                        else:
+                            remote_candidate = candidate_from_sdp(sdp_str)
+                            remote_candidate.sdpMid = candidate_info.get("sdpMid")
+                            remote_candidate.sdpMLineIndex = candidate_info.get("sdpMLineIndex")
+                            
+                            await pc.addIceCandidate(remote_candidate)
+                            print(f"🕳️ 已添加来自浏览器的特征 (打洞尝试): {remote_candidate.ip}:{remote_candidate.port}")
             except json.JSONDecodeError:
                 pass
 
