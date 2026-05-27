@@ -94,22 +94,42 @@ async def run(role):
                     from aiortc.sdp import candidate_from_sdp
                     candidate_info = msg["candidate"]
                     sdp_str = candidate_info.get("candidate", "")
-                    if sdp_str and ":" in sdp_str and ".local" not in sdp_str:
-                        remote_candidate = candidate_from_sdp(sdp_str)
-                        remote_candidate.sdpMid = candidate_info.get("sdpMid")
-                        remote_candidate.sdpMLineIndex = candidate_info.get("sdpMLineIndex")
-                        
-                        await pc.addIceCandidate(remote_candidate)
-                        print(f"🕳️ 已添加来自浏览器的 IPv6 特征: [{remote_candidate.ip}]:{remote_candidate.port}")
+                    if sdp_str:
+                        # 【黑科技核心】拦截浏览器的 mDNS 假地址，替换为我们手动传入的真 IPv6 地址
+                        if ".local" in sdp_str and target_ipv6:
+                            parts = sdp_str.split(" ")
+                            for i, part in enumerate(parts):
+                                if ".local" in part:
+                                    parts[i] = target_ipv6
+                            sdp_str = " ".join(parts)
+                            print(f"🔧 [黑科技] 拦截 mDNS，注入真实 IPv6 地址: {sdp_str}")
+
+                        if ":" in sdp_str and ".local" not in sdp_str:
+                            remote_candidate = candidate_from_sdp(sdp_str)
+                            remote_candidate.sdpMid = candidate_info.get("sdpMid")
+                            remote_candidate.sdpMLineIndex = candidate_info.get("sdpMLineIndex")
+                            
+                            await pc.addIceCandidate(remote_candidate)
+                            print(f"🕳️ 已添加来自浏览器的特征尝试直连: [{remote_candidate.ip}]:{remote_candidate.port}")
             except json.JSONDecodeError:
                 pass
 
 if __name__ == "__main__":
     import sys
     role = "answer"
+    target_ipv6 = None
+    
     if len(sys.argv) > 1 and sys.argv[1] == "offer":
         role = "offer"
-    print(f"当前角色: {role} (仅使用 IPv6)")
+    if len(sys.argv) > 2:
+        target_ipv6 = sys.argv[2]
+        
+    print(f"当前角色: {role}")
+    if target_ipv6:
+        print(f"🎯 强制注入目标 IPv6 地址: {target_ipv6}")
+    else:
+        print("⚠️ 未提供目标 IPv6，若浏览器开启了 mDNS 隐私保护可能无法直连。")
+        
     loop = asyncio.get_event_loop()
     try:
         loop.run_until_complete(run(role))
