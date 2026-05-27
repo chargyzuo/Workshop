@@ -99,11 +99,9 @@
 
             peerConnection.onicecandidate = (event) => {
                 if (event.candidate) {
-                    // 仅演示目的：只发送包含 IPv6 的特征给对方，过滤掉 IPv4 内网地址
-                    if (event.candidate.address.includes(':')) {
-                        log(`🔍 收集到本地 IPv6 网络特征: [${event.candidate.address}]:${event.candidate.port}`);
-                        sendSignaling({ type: 'ice-candidate', candidate: event.candidate });
-                    }
+                    // 发送所有特征给对方 (包含 mDNS)，由对方的 Python 脚本负责拦截替换
+                    log(`🔍 收集到本地网络特征: ${event.candidate.address}:${event.candidate.port}`);
+                    sendSignaling({ type: 'ice-candidate', candidate: event.candidate });
                 }
             };
 
